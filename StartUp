@@ -1,0 +1,82 @@
+import tkinter as tk
+from tkinter import Frame
+
+
+class Application(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        # Setting window title and size
+        self.master.title("ToolBox")
+        self.master.geometry("800x600")
+        self.master.resizable(0, 0)
+        # End setting window title
+        self.buttons = []
+        self.labels = []
+        # Setting Constant for window fonts
+        self.labelFont = "Source Code Pro", 16
+        self.buttonFont = "Source Code Pro", 15
+        # making some frames but leaving the setting of them to the individual functions
+        self.bottomFrame = Frame(self.master)
+        self.topFrame = Frame(self.master)
+        self.leftFrame = Frame(self.master)
+        self.rightFrame = Frame(self.master)
+        self.middleFrame = Frame(self.master)
+        
+        # Defining all Widgets
+        self.main_regularInstall = None
+        self.main_softwareLoop = None
+        self.main_userQuery = None
+        self.main_welcomeLabel = None
+        # end
+        self.master = master
+        self.mainMenu()
+    
+    def mainMenu(self):
+        # Packing the needed Frames
+        self.topFrame.pack(side="top")
+        self.bottomFrame.pack(side="bottom")
+        self.middleFrame.pack(side="bottom")
+        
+        # Setting the master frame for the Label
+        self.main_welcomeLabel = tk.Label(self.topFrame)
+        
+        # Setting the text for the Welcome Label
+        self.main_welcomeLabel["text"] = "Main Menu"
+        # Setting the font
+        self.main_welcomeLabel["font"] = self.labelFont
+        
+        # Laying out the Label
+        self.main_welcomeLabel.pack(side="top")
+        
+        # Setting the master frame for the Buttons
+        self.main_regularInstall = tk.Button(self.bottomFrame)
+        self.main_softwareLoop = tk.Button(self.bottomFrame)
+        self.main_userQuery = tk.Button(self.middleFrame)
+        
+        # Setting the text of all the buttons
+        self.main_softwareLoop["text"] = "bottomFrame"
+        self.main_regularInstall["text"] = "Software install"
+        self.main_userQuery["text"] = "User Info"
+        
+        # End setting button text
+        
+        # Setting the commands of the Buttons
+        self.main_softwareLoop["command"] = self.say_hi
+        # End Setting button commands
+        
+        # Laying out Buttons in window
+        self.main_softwareLoop.pack(side="bottom")
+        self.main_regularInstall.pack(side="top")
+        self.main_userQuery.pack(side="top")
+        # End laying out Buttons to window
+        
+        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
+        self.quit.pack(side="bottom")
+    
+    def say_hi(self):
+        print("hi there, everyone")
+
+
+root = tk.Tk()
+app = Application(master=root)
+app.mainloop()
