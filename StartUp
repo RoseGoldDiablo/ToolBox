@@ -35,7 +35,6 @@ class UI(QWidget):
         self.top = 100
         self.width = 650
         self.height = 500
-        self.setStyleSheet("background-color: #173e43")
         self.Welcome()
 
         # --------------------------------------------------------------------------------------------------------------
@@ -122,11 +121,13 @@ class UI(QWidget):
             clearLayout(Vertical)
             clearLayout(Horizontal)
             clearLayout(Horizontal2)
+            self.ComputerQueryMenu()
 
         def P12RemovalNext():
             clearLayout(Vertical)
             clearLayout(Horizontal)
             clearLayout(Horizontal2)
+            self.P12RemovalMenu()
 
         # --------------------------------------------------------------------------------------------------------------
         # Sets some changes for the the menu like adding the buttons and changing the window title
@@ -160,6 +161,8 @@ class UI(QWidget):
         SoftwareLoopButton.clicked.connect(SoftwareLoopNext)
         RegularInstallButton.clicked.connect(RegularInstallNext)
         UserQueryButton.clicked.connect(UserQueryNext)
+        ComputerQueryButton.clicked.connect(ComputerQueryNext)
+        P12RemovalButton.clicked.connect(P12RemovalNext)
 
         # --------------------------------------------------------------------------------------------------------------
 
@@ -285,10 +288,60 @@ class UI(QWidget):
         # Binding commands to buttons
         BackButton.clicked.connect(self.Back)
 
+    def ComputerQueryMenu(self):
+        global Horizontal
+        global Vertical
+        
+        # Changing the window settings
+        self.title = "Computer Query"
+        self.setWindowTitle(self.title)
+        # Making the widgets
+        ComputerNameLineEdit = QLineEdit()
+        GetComputerInfoButton = QPushButton("Search")
+        ComputerInfoTextBox = QTextEdit()
+        BackButton = QPushButton("Main Menu")
 
+        # Setting the layout
+
+        Horizontal.addStretch()
+        Horizontal.addWidget(ComputerNameLineEdit)
+        Horizontal.addWidget(GetComputerInfoButton)
+        Horizontal.addStretch()
+        Vertical2 = QVBoxLayout()
+        Vertical2.addWidget(ComputerInfoTextBox)
+        Horizontal.addLayout(Vertical2)
+        Vertical.addLayout(Horizontal)
+        Vertical.addWidget(BackButton)
+
+        # Binding commands to buttons
+        BackButton.clicked.connect(self.Back)
+     
+    def P12RemovalMenu(self):
+        # Global layout variables
+        global Vertical
+        global Horizontal
+        # Setting the title for the window
+        self.title = 'Software Loop-er'
+        self.setWindowTitle(self.title)
+        # Defining the widgets
+        ComputerNameTextBox = QTextEdit()
+        Software1 = QPushButton('Remove')
+        BackButton = QPushButton("Main Menu")
+    
+        # Setting the layout
+        Grid = QGridLayout()
+        Horizontal.addWidget(ComputerNameTextBox)
+        Grid.addWidget(Software1, 0, 0)
+        Grid.addWidget(BackButton, 1, 0)
+        Horizontal.addLayout(Grid)
+    
+        Vertical.addLayout(Horizontal)
+    
+        # Binding commands with the buttons
+    
+        BackButton.clicked.connect(self.Back)
 # Function that starts the application
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     exe = UI()
     sys.exit(app.exec_())
-
