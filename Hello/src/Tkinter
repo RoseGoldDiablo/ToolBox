@@ -1,0 +1,388 @@
+# Imports
+from tkinter import *
+from tkinter import messagebox
+from tkinter import filedialog
+from os import path
+import os
+import subprocess
+from tkinter import ttk
+import sys
+
+# Constants
+server = 'AGGN-FS-002P'
+remote = r'\\' + server + r'\Toolbox\Applications'
+
+# Declarations
+cn = None
+cn_status = None
+ss = None
+main_window = None
+admin = None
+window = None
+ee_window = None
+ID = None
+
+
+# Where user is authenticated with password
+def authenticate():
+    # Laying out Authentication window
+    auth_window = Tk()
+    auth_window.resizable(width=False, height=False)
+    auth_window.configure(bg="#1d1e22")
+    auth_window.title('Password Required')
+    auth_window.geometry('400x300')
+    auth_window.columnconfigure(0, weight=1)
+    auth_window.rowconfigure(0, weight=1)
+    
+    # Starting to make the Meat and Potatoes
+    auth_label = Label(auth_window, text="Enter Password", font=("fixedsys", 13), bg='#1d1e22', fg='#feda6a')
+    auth_label.grid(row=0, column=0)
+    auth_entry = Entry(auth_window, bg='#1d1e22', fg='#feda6a', font=("fixedsys", 12))
+    auth_entry.grid(row=1, column=0)
+    auth_entry.focus()
+    
+    # Creating Password Checking Function
+    def check_password(event=NONE):
+        password = 'Brooks'
+        secret = 'test'
+        global admin
+        if auth_entry.get() == password:
+            admin = FALSE
+            auth_window.destroy()
+            main()
+        elif auth_entry.get() == secret:
+            admin = TRUE
+            auth_window.destroy()
+            main()
+        elif auth_entry.get() != password:
+            admin = FALSE
+    
+    # Declaring Password Check Button and key Bind to Return(Enter Key)
+    auth_button = Button(auth_window, command=check_password)
+    auth_window.bind('<Return>', check_password)
+    
+    auth_window.mainloop()
+
+
+# Main Menu For entering computer name and selecting things to execute
+def main():
+    # Laying out Main Window GUI
+    global main_window
+    main_window = Tk()
+    main_window.resizable(width=False, height=False)
+    main_window.configure(bg="#1d1e22")
+    if admin == TRUE:
+        main_window.title('WASUPP')
+    if admin == FALSE:
+        main_window.title('Scripted by A1C Brooks')
+    main_window.geometry('800x600')
+    main_window.columnconfigure(0, weight=1)
+    main_window.rowconfigure(0, weight=1)
+    main_button(main_window)
+    
+    # Meat and Potatoes of Main Window
+    
+    main_cn_label = Label(main_window, text="Computer Name", bg='#1d1e22', fg='#d4d4dc', font=("fixedsys", 12))
+    main_cn_label.place(x=645, y=5)
+    main_cn_entry = Entry(main_window, bg='#1d1e22', fg='#feda6a', font=("fixedsys", 12))
+    main_cn_entry.place(x=595, y=25)
+    main_cn_entry.focus()
+    main_install_button = Button(main_window, text="   Install   ", font=("fixedsys", 9), bg='#1d1e22',
+                                 fg='#d4d4dc', command=software_select)
+    main_install_button.place(x=110, y=250)
+    if admin == TRUE:
+        main_admin_button = Button(main_window, text=' Admin Stuff ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+        main_admin_button.place(x=340, y=300)
+    else:
+        pass
+    main_eagle_eye_button = Button(main_window, text="  Eagle Eye  ", font=("fixedsys", 9),
+                                   bg='#1d1e22', fg='#d4d4dc', command=eagle_eye)
+    main_eagle_eye_button.place(x=570, y=250)
+    change_cn_button = Button(main_window, text=' Change Comp.', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    change_cn_button.place(x=110, y=350)
+    links_button = Button(main_window, text='    Links    ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc',
+                          command=links)
+    links_button.place(x=570, y=350)
+    
+    def ping(host):
+        
+        response = os.system('ping -c 1 ' + host)
+        if response == 0:
+            ping_status = 'Up'
+            return ping_status
+        
+        else:
+            ping_status = 'Down'
+            
+            return ping_status
+    
+    def check_cn(event=None):
+        global cn
+        cn = main_cn_entry.get()
+        if cn == '':
+            messagebox.showerror('Error', 'Empty computer name')
+        
+        else:
+            pass
+        global cn_status
+        cn_status = ping(cn)
+        
+        if cn_status == 'Up':
+            main_cn_entry.destroy()
+            cn_label = Label(main_window, text=cn, bg='#1d1e22', fg='Green', font=("fixedsys", 12))
+            cn_label.place(x=610, y=25)
+        if cn_status == 'Down':
+            main_cn_entry.config(fg='Red')
+    
+    main_window.bind('<Return>', check_cn)
+    # Purposely excluded enter button from window for aesthetics
+    cn_enter_button = Button(main_window, command=check_cn)
+    main_window.mainloop()
+
+
+def main_button(current):
+    global window
+    back = Button(current, text='  Menu  ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc', command=main_menu)
+    back.place(x=700, y=565)
+
+
+def main_menu(current):
+    current.destroy
+
+
+def software_select():
+    if cn_status != 'Up':
+        messagebox.showerror('Error', 'Enter Valid Computer Name')
+    if cn_status == 'Up':
+        # Destroying Main Window
+        main_window.destroy()
+        # Laying out Software Select(ss) window
+        ss_window = Tk()
+        ss_window.resizable(width=False, height=False)
+        ss_window.configure(bg="#1d1e22")
+        ss_window.title('Select Software')
+        ss_window.geometry('800x600')
+        ss_window.columnconfigure(0, weight=1)
+        ss_window.rowconfigure(0, weight=1)
+        main_button(ss_window)
+        # List of Software
+        s_list = ['Active Client', 'Adobe Acrobat', 'Adobe Flash Player', 'Adobe Shockwave', 'Axway',
+                  'Digital Watchdog', 'DSET', 'Firefox', 'Google Chrome', 'GTIMS', 'HBSS', 'Java',
+                  'NIPR Certificates', 'RSAT', 'Silverlight', 'SCCM', 'Tanium', 'Transverse', 'vESD', 'vBrick',
+                  'VPN']
+        # configuring the listbox for the software
+        ss_window_list = Listbox(ss_window, background='#1d1e22', fg='#feda6a', selectbackground='Green',
+                                 highlightcolor='Black', height=10, width=25, selectmode=SINGLE,
+                                 font=("fixedsys", 12), relief=RIDGE)
+        
+        ss_window_list.place(x=265, y=150)
+        # Filling the Listbox
+        for s in s_list:
+            ss_window_list.insert(END, s)
+        
+        def s_list_select(event=None):
+            s_highlight = ss_window_list.curselection()
+            global ss
+            ss = ss_window_list.get(s_highlight)
+            ss_install()
+        
+        ss_window.bind('<Double-Button-1>', s_list_select)
+        
+        # Setting up Selected Software Install
+        def ss_install():
+            # Setting progress bar for install
+            ss_progress = ttk.Progressbar(ss_window, orient=HORIZONTAL, length=120)
+            ss_progress.place(x=325, y=500)
+            ss_progress.config(mode='determinate', maximum=100, value=5)
+            # Converting python variables to Batch variables
+            os.putenv("SOFTWARE", ss)
+            ss_progress.step(15)
+            os.putenv("SERVER", server)
+            ss_progress.step(18)
+            os.putenv("REMOTE", remote)
+            ss_progress.step(23)
+            os.putenv("WORKSTATION", cn)
+            ss_progress.step(30)
+            # Calling Batch Script
+            subprocess.run(r'C:\Users\Public\Documents\ToolboxInstaller.bat')
+            ss_progress.step(100)
+        
+        # More meat and potatoes
+        ss_window_label = Label(ss_window, text='Select Software', bg='#1d1e22', fg='#d4d4dc', font=("fixedsys", 12))
+        ss_window_label.place(x=310, y=125)
+        
+        # Custom Software Button
+        def custom_select():
+            c_path = filedialog.askopenfilename()
+            # Setting progress bar for install
+            ss_progress = ttk.Progressbar(ss_window, orient=HORIZONTAL, length=120)
+            ss_progress.place(x=325, y=500)
+            ss_progress.config(mode='determinate', maximum=100, value=5)
+            # Converting python variables to Batch variables
+            os.putenv("SOFTWARE", c_path)
+            ss_progress.step(15)
+            os.putenv("SERVER", server)
+            ss_progress.step(18)
+            os.putenv("REMOTE", remote)
+            ss_progress.step(23)
+            os.putenv("WORKSTATION", cn)
+            ss_progress.step(30)
+            # Calling Batch Script
+            subprocess.run(r'C:\Users\Public\Documents\CustomToolboxInstaller.bat')
+            ss_progress.step(100)
+        
+        ss_window_c_butt = Button(ss_window, text='Custom Software', font=("fixedsys", 9), bg='#1d1e22',
+                                  fg='#d4d4dc', command=custom_select)
+        ss_window_c_butt.place(x=320, y=400)
+        # Software Installation
+
+
+def eagle_eye():
+    # Destroys Main Window
+    main_window.destroy()
+    # Creating Eagle Eye menu
+    global ee_window
+    ee_window = Tk()
+    ee_window.resizable(width=False, height=False)
+    ee_window.configure(bg="#1d1e22")
+    ee_window.title('Eagle Eye')
+    ee_window.geometry('800x600')
+    ee_window.columnconfigure(0, weight=1)
+    ee_window.rowconfigure(0, weight=1)
+    main_button(ee_window)
+    # More meat and potatoes
+    ee_main_label = Label(ee_window, text='Give a little, Get a lot', bg='#1d1e22', fg='#d4d4dc', font=("fixedsys", 12))
+    ee_main_label.place(x=290, y=100)
+    ee_dodid_button = Button(ee_window, text='    DODID    ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc',
+                             command=dodid)
+    ee_cn_button = Button(ee_window, text='Computer Name', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    ee_name_button = Button(ee_window, text='     Name    ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    ee_location_button = Button(ee_window, text='   Location  ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    ee_sq_button = Button(ee_window, text='      SQ     ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    ee_dodid_button.place(x=110, y=250)
+    ee_cn_button.place(x=340, y=300)
+    ee_name_button.place(x=560, y=250)
+    ee_location_button.place(x=110, y=350)
+    ee_sq_button.place(x=560, y=350)
+    ee_window.mainloop()
+
+
+def info(given):
+    info_window = Tk()
+    info_window.resizable(width=False, height=False)
+    info_window.configure(bg="#1d1e22")
+    info_window.title('Eagle Eye')
+    info_window.geometry('800x600')
+    info_window.columnconfigure(0, weight=1)
+    info_window.rowconfigure(0, weight=1)
+    info_text = Message(info_window, text=given, fg='#d4d4dc', font=("fixedsys", 12))
+    info_text.place(x=350, y=250)
+
+
+def dodid():
+    # Destroying Eagle Eye Window
+    ee_window.destroy
+    
+    # Setting the Table(GUI)
+    def get_dodid():
+        get_dodid_window = Tk()
+        get_dodid_window.resizable(width=False, height=False)
+        get_dodid_window.configure(bg="#1d1e22")
+        get_dodid_window.title('Eagle Eye')
+        get_dodid_window.geometry('400x200')
+        get_dodid_window.columnconfigure(0, weight=1)
+        get_dodid_window.rowconfigure(0, weight=1)
+        main_button(get_dodid_window)
+        # Meat and Potatoes
+        dodid_entry = Entry(get_dodid_window, bg='#1d1e22', fg='#feda6a', font=("fixedsys", 12))
+        dodid_entry.focus
+        dodid_label = Label(get_dodid_window, text='Enter DODID', bg='#1d1e22', fg='#d4d4dc',
+                            font=("fixedsys", 12))
+        dodid_entry.place(x=100, y=115)
+        dodid_label.place(x=145, y=75)
+        
+        # Defining the function that grabs DODID from Entry
+        def enter_dod(event=None):
+            global ID
+            ID = dodid_entry.get
+            ad_query(ID)
+        
+        # Binds Enter key to enter_dod command
+        get_dodid_window.bind('<Return>', enter_dod)
+        # Creates the Button that uses the enter_dod command
+        dodid_enter_button = Button(get_dodid_window, command=enter_dod)
+    
+    # Defines function for writing and executing the powershell script for ad-getuser
+    def ad_query(idn):
+        query = open("DODID.ps1", "w+")
+        query.write("Get-AdUser " + idn + r" -Properties * | Select-Object DisplayName,EmailAddress,Enabled,"
+                                          r"iaTrainingDate,OfficePhone,LockedOut | Format-List")
+        p = subprocess.Popen(['powershell.exe', r'C:\Users\Public\Documents\DODID.ps1'], stdout=sys.stdout)
+        out = p.communicate()
+        info(out)
+    
+    get_dodid()
+
+
+def stuff():
+    main_window.destroy()
+
+
+def links():
+    acs = 'https://132.35.169.30/acsadmin'
+    iao = 'https://esd.us.af.mil/ESDPortal/IAOdefualt.aspx'
+    dra = 'https://esd.us.af.mil/esd_toolbox/ESDToolBoxTechDRA.aspx'
+    remedy = 'https://eitsm2.us.af.mil'
+    sharepoint = 'https://altus.eis.aetc.af.mil'
+    mccc = 'https://www-r.aetc.af.mil/sc/msss/Map.asp#'
+    afceds = 'https://ceds.gunter.af.mil'
+    rapids = 'https://www.dmdc.osd.mil/self_service/rapidsw/unathenticated:jsessionid=o-gj0Cg5B4aVD83BGHy' \
+             '_fY8Q7szApjMa-hs6dOLbW_NrMtbfNii!-937452074?execution=e1s1'
+    sd1 = r'\\aggn-fs-001p'
+    sd2 = r'\\aggn-fs-002p'
+    print_server = r'\\aggn-qs-001v'
+    domain_name = 'area52.afnoapps.us.af.mil'
+    proxy_server = 'altus.proxy.us.af.mil'
+    # Destroying main window
+    main_window.destroy()
+    # Making links window
+    links_window = Tk()
+    links_window.resizable(width=False, height=False)
+    links_window.configure(bg="#1d1e22")
+    links_window.title('Eagle Eye')
+    links_window.geometry('800x600')
+    links_window.columnconfigure(0, weight=1)
+    links_window.rowconfigure(0, weight=1)
+    main_button(links_window)
+    # Meat and potatoes
+    links_label = Label(links_window, text='Links', bg='#1d1e22', fg='#d4d4dc', font=("fixedsys", 12))
+    acs_button = Button(links_window, text='    ACS   ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc'
+                        )
+    iao_button = Button(links_window, text='    IAO   ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    dra_button = Button(links_window, text='    DRA   ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    remedy_button = Button(links_window, text='  Remedy  ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    sharepoint_button = Button(links_window, text='Sharepoint', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    mccc_button = Button(links_window, text='   MCCC   ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    afceds_button = Button(links_window, text='  AFCEDS  ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    rapids_button = Button(links_window, text='  Rapids  ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    sd1_button = Button(links_window, text='   001P   ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    sd2_button = Button(links_window, text='   002P   ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    print_server_button = Button(links_window, text='   001V   ', font=("fixedsys", 9), bg='#1d1e22', fg='#d4d4dc')
+    # Setting the table
+    links_label.place(x=370, y=50)
+    acs_button.place(x=50, y=250)
+    iao_button.place(x=250, y=250)
+    dra_button.place(x=450, y=250)
+    remedy_button.place(x=650, y=250)
+    sharepoint_button.place(x=150, y=340)
+    mccc_button.place(x=350, y=340)
+    afceds_button.place(x=550, y=340)
+    rapids_button.place(x=50, y=430)
+    sd1_button.place(x=250, y=430)
+    sd2_button.place(x=450, y=430)
+    print_server_button.place(x=650, y=430)
+    
+    links_window.mainloop()
+
+
+authenticate()
